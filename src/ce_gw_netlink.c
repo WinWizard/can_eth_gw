@@ -268,7 +268,7 @@ int ce_gw_netlink_add(struct sk_buff *skb_info, struct genl_info *info)
 			err = -ENODATA;
 			goto ce_gw_add_error;
 		}
-		
+
 			pr_info("ce_gw: Add : from %s to %s"
 			        "(Type %d; Flags %d)\n", nla_src_data,
 			        nla_dst_data, *nla_type_data, *nla_flags_data);
@@ -521,116 +521,194 @@ ce_gw_list_error:
 	return err;
 }
 
-/**
- * @brief details of ce_gw_netlink_echo()
- * @ingroup net
- */
-struct genl_ops ce_gw_genl_ops_echo = {
-	.cmd = CE_GW_C_ECHO,
-	.internal_flags = CE_GW_NO_FLAG,
-	.flags = CE_GW_NO_FLAG,
-	.policy = ce_gw_genl_policy,
-	.doit = ce_gw_netlink_echo,
-	.dumpit = NULL,
-	.done = NULL,
-};
+#if (LINUX_VERSION_CODE <= KERNEL_VERSION(3,12,0) && !defined(RHEL_MAJOR))
+	/**
+	 * @brief details of ce_gw_netlink_echo()
+	 * @ingroup net
+	 */
+	struct genl_ops ce_gw_genl_ops_echo = {
+		.cmd = CE_GW_C_ECHO,
+		.internal_flags = CE_GW_NO_FLAG,
+		.flags = CE_GW_NO_FLAG,
+		.policy = ce_gw_genl_policy,
+		.doit = ce_gw_netlink_echo,
+		.dumpit = NULL,
+		.done = NULL,
+	};
 
-/**
- * @brief details of ce_gw_netlink_add()
- * @ingroup net
- */
-struct genl_ops ce_gw_genl_ops_add = {
-	.cmd = CE_GW_C_ADD,
-	.internal_flags = CE_GW_NO_FLAG,
-	.flags = CE_GW_NO_FLAG,
-	.policy = ce_gw_genl_policy,
-	.doit = ce_gw_netlink_add,
-	.dumpit = NULL,
-	.done = NULL,
-};
+	/**
+	 * @brief details of ce_gw_netlink_add()
+	 * @ingroup net
+	 */
+	struct genl_ops ce_gw_genl_ops_add = {
+		.cmd = CE_GW_C_ADD,
+		.internal_flags = CE_GW_NO_FLAG,
+		.flags = CE_GW_NO_FLAG,
+		.policy = ce_gw_genl_policy,
+		.doit = ce_gw_netlink_add,
+		.dumpit = NULL,
+		.done = NULL,
+	};
 
-/**
- * @brief details of ce_gw_netlink_del()
- * @ingroup net
- */
-struct genl_ops ce_gw_genl_ops_del = {
-	.cmd = CE_GW_C_DEL,
-	.internal_flags = CE_GW_NO_FLAG,
-	.flags = CE_GW_NO_FLAG,
-	.policy = ce_gw_genl_policy,
-	.doit = ce_gw_netlink_del,
-	.dumpit = NULL,
-	.done = NULL,
-};
+	/**
+	 * @brief details of ce_gw_netlink_del()
+	 * @ingroup net
+	 */
+	struct genl_ops ce_gw_genl_ops_del = {
+		.cmd = CE_GW_C_DEL,
+		.internal_flags = CE_GW_NO_FLAG,
+		.flags = CE_GW_NO_FLAG,
+		.policy = ce_gw_genl_policy,
+		.doit = ce_gw_netlink_del,
+		.dumpit = NULL,
+		.done = NULL,
+	};
 
-/**
- * @brief details of ce_gw_netlink_list()
- * @ingroup net
- */
-struct genl_ops ce_gw_genl_ops_list = {
-	.cmd = CE_GW_C_LIST,
-	.internal_flags = CE_GW_NO_FLAG,
-	.flags = CE_GW_NO_FLAG,
-	.policy = ce_gw_genl_policy,
-	.doit = ce_gw_netlink_list,
-	.dumpit = NULL,
-	.done = NULL,
-};
+	/**
+	 * @brief details of ce_gw_netlink_list()
+	 * @ingroup net
+	 */
+	struct genl_ops ce_gw_genl_ops_list = {
+		.cmd = CE_GW_C_LIST,
+		.internal_flags = CE_GW_NO_FLAG,
+		.flags = CE_GW_NO_FLAG,
+		.policy = ce_gw_genl_policy,
+		.doit = ce_gw_netlink_list,
+		.dumpit = NULL,
+		.done = NULL,
+	};
+#else
+	#define ce_gw_genl_ops_echo 0
+	#define ce_gw_genl_ops_add  1
+	#define ce_gw_genl_ops_del  2
+	#define ce_gw_genl_ops_list 3
+	struct genl_ops ops[] = {
+		/**
+		 * @brief details of ce_gw_netlink_echo()
+		 * @ingroup net
+		 */
+		 {
+			.cmd = CE_GW_C_ECHO,
+			.internal_flags = CE_GW_NO_FLAG,
+			.flags = CE_GW_NO_FLAG,
+			.policy = ce_gw_genl_policy,
+			.doit = ce_gw_netlink_echo,
+			.dumpit = NULL,
+			.done = NULL,
+		},
 
+		/**
+		 * @brief details of ce_gw_netlink_add()
+		 * @ingroup net
+		 */
+		{
+			.cmd = CE_GW_C_ADD,
+			.internal_flags = CE_GW_NO_FLAG,
+			.flags = CE_GW_NO_FLAG,
+			.policy = ce_gw_genl_policy,
+			.doit = ce_gw_netlink_add,
+			.dumpit = NULL,
+			.done = NULL,
+		},
+
+		/**
+		 * @brief details of ce_gw_netlink_del()
+		 * @ingroup net
+		 */
+		{
+			.cmd = CE_GW_C_DEL,
+			.internal_flags = CE_GW_NO_FLAG,
+			.flags = CE_GW_NO_FLAG,
+			.policy = ce_gw_genl_policy,
+			.doit = ce_gw_netlink_del,
+			.dumpit = NULL,
+			.done = NULL,
+		},
+
+		/**
+		 * @brief details of ce_gw_netlink_list()
+		 * @ingroup net
+		 */
+		{
+			.cmd = CE_GW_C_LIST,
+			.internal_flags = CE_GW_NO_FLAG,
+			.flags = CE_GW_NO_FLAG,
+			.policy = ce_gw_genl_policy,
+			.doit = ce_gw_netlink_list,
+			.dumpit = NULL,
+			.done = NULL,
+		}
+	};
+#endif
 
 int ce_gw_netlink_init(void) {
 	int err;
+	//code for linux versions 3.9-3.12 Excluting RHEL/CENTOS which uses newer
+	//patches with old version
 
-	if ((err = genl_register_family(&ce_gw_genl_family)) != 0) {
+#if (LINUX_VERSION_CODE <= KERNEL_VERSION(3,12,0) && !defined(RHEL_MAJOR))
+		if ((err = genl_register_family(&ce_gw_genl_family)) != 0) {
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,10,0)
+		ce_gw_genl_family.ops=ops;
+		ce_gw_genl_family.n_ops=4;
+
+		if ((err = genl_register_family(&ce_gw_genl_family)) != 0) {
+#elif defined(RHEL_MAJOR) || LINUX_VERSION_CODE <= KERNEL_VERSION(4,10,0)
+		if ((err = genl_register_family_with_ops(&ce_gw_genl_family, ops)) != 0) {
+#endif
+
 		pr_err("ce_gw: Error during registering family ce_gw: %i\n",
 		       err);
 		goto ce_gw_init_family_err;
 	}
+	#if (LINUX_VERSION_CODE <= KERNEL_VERSION(3,12,0) && !defined(RHEL_MAJOR))
+		err = genl_register_ops(&ce_gw_genl_family, &ce_gw_genl_ops_echo);
+		if (err != 0) {
+			pr_err("ce_gw: Error during registering operation echo: %i\n",
+			       err);
+			goto ce_gw_init_echo_err;
+		}
 
-	err = genl_register_ops(&ce_gw_genl_family, &ce_gw_genl_ops_echo);
-	if (err != 0) {
-		pr_err("ce_gw: Error during registering operation echo: %i\n",
-		       err);
-		goto ce_gw_init_echo_err;
-	}
+		err = genl_register_ops(&ce_gw_genl_family, &ce_gw_genl_ops_del);
+		if (err != 0) {
+			pr_err("ce_gw: Error during registering operation del: %i\n",
+			       err);
+			goto ce_gw_init_del_err;
+		}
 
-	err = genl_register_ops(&ce_gw_genl_family, &ce_gw_genl_ops_del);
-	if (err != 0) {
-		pr_err("ce_gw: Error during registering operation del: %i\n",
-		       err);
-		goto ce_gw_init_del_err;
-	}
+		err = genl_register_ops(&ce_gw_genl_family, &ce_gw_genl_ops_add);
+		if (err != 0) {
+			pr_err("ce_gw: Error during registering operation add: %i\n",
+			       err);
+			goto ce_gw_init_add_err;
+		}
 
-	err = genl_register_ops(&ce_gw_genl_family, &ce_gw_genl_ops_add);
-	if (err != 0) {
-		pr_err("ce_gw: Error during registering operation add: %i\n",
-		       err);
-		goto ce_gw_init_add_err;
-	}
-
-	err = genl_register_ops(&ce_gw_genl_family, &ce_gw_genl_ops_list);
-	if (err != 0) {
-		pr_err("ce_gw: Error during registering operation list: %i\n",
-		       err);
-		goto ce_gw_init_list_err;
-	}
-
+		err = genl_register_ops(&ce_gw_genl_family, &ce_gw_genl_ops_list);
+		if (err != 0) {
+			pr_err("ce_gw: Error during registering operation list: %i\n",
+			       err);
+			goto ce_gw_init_list_err;
+		}
+#endif
 	return 0;
+	//code for linux versions 3.9-3.12 Excluting RHEL/CENTOS which uses newer
+	//patches with old version
 
-
-	err = genl_unregister_ops(&ce_gw_genl_family, &ce_gw_genl_ops_list);
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,12,0) && !defined(RHEL_MAJOR)
+		err = genl_unregister_ops(&ce_gw_genl_family, &ce_gw_genl_ops_list);
 
 ce_gw_init_list_err:
-	err = genl_unregister_ops(&ce_gw_genl_family, &ce_gw_genl_ops_add);
+		err = genl_unregister_ops(&ce_gw_genl_family, &ce_gw_genl_ops_add);
 
 ce_gw_init_add_err:
-	err = genl_unregister_ops(&ce_gw_genl_family, &ce_gw_genl_ops_del);
+		err = genl_unregister_ops(&ce_gw_genl_family, &ce_gw_genl_ops_del);
 
 ce_gw_init_del_err:
-	err = genl_unregister_ops(&ce_gw_genl_family, &ce_gw_genl_ops_echo);
+		err = genl_unregister_ops(&ce_gw_genl_family, &ce_gw_genl_ops_echo);
 
 ce_gw_init_echo_err:
-	err = genl_unregister_family(&ce_gw_genl_family);
+		err = genl_unregister_family(&ce_gw_genl_family);
+#endif
 
 ce_gw_init_family_err:
 	return -1;
@@ -639,6 +717,11 @@ ce_gw_init_family_err:
 
 void ce_gw_netlink_exit(void) {
 	int err;
+
+//code for linux versions 3.9-3.12 Excluting RHEL/CENTOS which uses newer
+//patches with old version
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,12,0) && !defined(RHEL_MAJOR)
+
 	err = genl_unregister_ops(&ce_gw_genl_family, &ce_gw_genl_ops_echo);
 	if (err != 0) {
 		pr_err("ce_gw: Error during unregistering operation echo: %i\n",
@@ -662,12 +745,14 @@ void ce_gw_netlink_exit(void) {
 		pr_err("ce_gw: Error during unregistering operation del: %i\n",
 		       err);
 	}
+#endif
 
 	err = genl_unregister_family(&ce_gw_genl_family);
 	if (err != 0) {
 		pr_err("ce_gw: Error during unregistering family ce_gw: %i\n",
 		       err);
 	}
+
 }
 
 

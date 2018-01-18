@@ -166,7 +166,11 @@ static struct net_device_ops ce_gw_ops = {
 	.ndo_open 	= ce_gw_dev_open,
 	.ndo_stop	= ce_gw_dev_stop,
 	.ndo_start_xmit	= ce_gw_dev_start_xmit,
-	0
+#ifdef RHEL_MAJOR
+	{0}
+#else
+   0
+#endif
 };
 
 int ce_gw_is_allocated_dev(struct net_device *eth_dev) {
@@ -381,7 +385,7 @@ void ce_gw_dev_setup(struct net_device *dev, enum ce_gw_type type,
 struct net_device *ce_gw_dev_create(enum ce_gw_type type, __u32 flags,
      char *dev_name) {
 	struct net_device *dev;
-	
+
 	dev = ce_gw_dev_alloc(dev_name);
 
 	ce_gw_dev_setup(dev, type, flags);

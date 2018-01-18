@@ -15,3 +15,5 @@ __Authors:__
 
    + Fabian Raab _<fabian.raab@tum.de>_
    + Stefan Smarzly _<stefan.smarzly@in.tum.de>_
+   + Dylan Kozicki _<dylan.kozicki@gmail.com>_
+   
