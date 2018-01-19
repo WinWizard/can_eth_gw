@@ -29,19 +29,10 @@ ccflags-y += -I$(PWD)/src -I$(PWD)/include
 SRC := src/ce_gw_main.o
 SRC += src/ce_gw_dev.o
 SRC += src/ce_gw_netlink.o
-OUTPUT := out
 
-# If KERNELRELEASE is defined, we've been invoked from the
-# kernel build system and can use its language.
-ifneq ($(KERNELRELEASE),)
-	obj-${CONFIG_CE_GW} += ${OUTPUT}/ce_gw.o
-	${OUTPUT}/ce_gw-objs = $(SRC:.c=.o)
+	obj-m := ce_gw.o
+	ce_gw-y = $(SRC)
 
-# Otherwise we were called directly from the command
-# line; invoke the kernel build system.
-else
-	#Keep export CONFIG* until the sources moved into the kernel source tree
-	export CONFIG_CE_GW=m
 
 	KERNELDIR := /lib/modules/$(shell uname -r)/build
 	# Path to target Linux Kernel
@@ -50,4 +41,3 @@ else
 modules modules_install clean:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) $@
 
-endif
