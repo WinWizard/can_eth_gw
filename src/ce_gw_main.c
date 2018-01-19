@@ -887,14 +887,15 @@ drop_frame:
 
 static inline int ce_gw_register_can_src(struct ce_gw_job *gwj)
 {
-	return can_rx_register(gwj->src.dev, gwj->can_rcv_filter.can_id,
+
+	return can_rx_register(sock_net(gwj), gwj->src.dev, gwj->can_rcv_filter.can_id,
 	                       gwj->can_rcv_filter.can_mask, ce_gw_can_rcv,
 	                       gwj, "ce_gw");
 }
 
 static inline void ce_gw_unregister_can_src(struct ce_gw_job *gwj)
 {
-	return can_rx_unregister(gwj->src.dev, gwj->can_rcv_filter.can_id,
+	return can_rx_unregister(sock_net(gwj),gwj->src.dev, gwj->can_rcv_filter.can_id,
 	                         gwj->can_rcv_filter.can_mask,
 	                         ce_gw_can_rcv, gwj);
 }
